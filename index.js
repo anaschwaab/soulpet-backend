@@ -10,6 +10,7 @@ app.use(express.json()); // Possibilitar transitar dados usando JSON
 const { connection, authenticate } = require("./database/database");
 authenticate(connection); // efetivar a conexão
 const Cliente = require("./database/cliente"); // Configurar o model da aplicação
+const Endereco = require("./database/endereco");
 
 // Definição de rotas
 
