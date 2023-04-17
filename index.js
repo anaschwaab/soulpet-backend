@@ -13,6 +13,23 @@ const Cliente = require("./database/cliente"); // Configurar o model da aplicaç
 const Endereco = require("./database/endereco");
 
 // Definição de rotas
+app.post("/clientes", async (req, res) => {
+  // Coletar os dados do req.body
+  const { nome, email, telefone, endereco } = req.body;
+
+  try {
+    // Dentro de 'novo' estará o o objeto criado
+    const novo = await Cliente.create(
+      { nome, email, telefone, endereco },
+      { include: [Endereco] }
+    );
+
+    res.status(201).json(novo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+});
 
 // Escuta de eventos (listen)
 app.listen(3000, () => {
