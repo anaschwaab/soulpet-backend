@@ -11,6 +11,7 @@ const { connection, authenticate } = require("./database/database");
 authenticate(connection); // efetivar a conexão
 const Cliente = require("./database/cliente"); // Configurar o model da aplicação
 const Endereco = require("./database/endereco");
+const Pet = require("./database/pet");
 
 // Definição de rotas
 app.get("/clientes", async (req, res) => {
@@ -51,7 +52,6 @@ app.post("/clientes", async (req, res) => {
     res.status(500).json({ message: "Um erro aconteceu." });
   }
 });
-
 
 // atualizar um cliente
 app.put("/clientes/:id", async (req, res) => {
@@ -103,6 +103,24 @@ app.delete("/clientes/:id", async (req, res) => {
   }
 });
 
+app.post("/pets", async (req, res) => {
+  const { nome, tipo, porte, dataNasc, clienteId } = req.body;
+
+  try {
+    const cliente = await Cliente.findByPk(clienteId);
+    if(cliente) {
+      const pet = await Pet.create({nome, tipo, porte, dataNasc, clienteId});
+      res.status(201).json(pet);
+    }
+    else {
+      res.status(404).json({ message: "Cliente não encontrado." });
+    }
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+});
 
 // Escuta de eventos (listen)
 app.listen(3000, () => {
