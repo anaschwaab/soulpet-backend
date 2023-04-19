@@ -63,21 +63,19 @@ app.put("/clientes/:id", async (req, res) => {
     // buscar cliente pelo id passado
     const cliente = await Cliente.findOne({ where: { id } });
     // validar a existência desse cliente no banco de dados
-    if(cliente) {
+    if (cliente) {
       // validar a existência desse do endereço passdo no corpo da requisição
-      if(endereco) {
+      if (endereco) {
         await Endereco.update(endereco, { where: { clienteId: id } });
       }
       // atualizar o cliente com nome, email e telefone
-      await cliente.update({nome, email, telefone});
+      await cliente.update({ nome, email, telefone });
       res.status(200).json({ message: "Cliente editado." });
-    }
-    else {
+    } else {
       res.status(404).json({ message: "Cliente não encontrado." });
     }
-  }
-  catch(err) {
-    console.error(err)
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Um erro aconteceu." });
   }
 });
@@ -89,15 +87,13 @@ app.delete("/clientes/:id", async (req, res) => {
   // buscar cliente por id
   const cliente = await Cliente.findOne({ where: { id } });
   try {
-    if(cliente) {
+    if (cliente) {
       await cliente.destroy();
       res.status(200).json({ message: "Cliente removido." });
-    }
-    else {
+    } else {
       res.status(404).json({ message: "Cliente não encontrado." });
     }
-  }
-  catch(err) {
+  } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Um erro aconteceu." });
   }
@@ -112,10 +108,9 @@ app.get("/pets/:id", async (req, res) => {
   const { id } = req.params;
 
   const pet = await Pet.findByPk(id);
-  if(pet) {
+  if (pet) {
     res.json(pet);
-  }
-  else {
+  } else {
     res.status(404).json({ message: "Pet não encontrado." });
   }
 });
@@ -125,15 +120,61 @@ app.post("/pets", async (req, res) => {
 
   try {
     const cliente = await Cliente.findByPk(clienteId);
-    if(cliente) {
-      const pet = await Pet.create({nome, tipo, porte, dataNasc, clienteId});
+    if (cliente) {
+      const pet = await Pet.create({ nome, tipo, porte, dataNasc, clienteId });
       res.status(201).json(pet);
-    }
-    else {
+    } else {
       res.status(404).json({ message: "Cliente não encontrado." });
     }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
   }
-  catch(err) {
+});
+
+app.put("/pets/:id", async (req, res) => {
+  // Esses são os dados que virão no corpo JSON
+  const { nome, tipo, dataNasc, porte } = req.body;
+
+  // É necessário checar a existência do Pet
+  // SELECT * FROM pets WHERE id = "req.params.id";
+  const pet = await Pet.findByPk(req.params.id);
+
+  // se pet é null => não existe o pet com o id
+  try {
+    if (pet) {
+      // IMPORTANTE: Indicar qual o pet a ser atualizado
+      // 1º Arg: Dados novos, 2º Arg: Where
+      await Pet.update(
+        { nome, tipo, dataNasc, porte },
+        { where: { id: req.params.id } } // WHERE id = "req.params.id"
+      );
+      // await pet.update({ nome, tipo, dataNasc, porte });
+      res.json({ message: "O pet foi editado." });
+    } else {
+      // caso o id seja inválido, a resposta ao cliente será essa
+      res.status(404).json({ message: "O pet não foi encontrado." });
+    }
+  } catch (err) {
+    // caso algum erro inesperado, a resposta ao cliente será essa
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+});
+
+app.delete("/pets/:id", async (req, res) => {
+  // Precisamos checar se o pet existe antes de apagar
+  const pet = await Pet.findByPk(req.params.id);
+
+  try {
+    if (pet) {
+      // pet existe, podemos apagar
+      await pet.destroy();
+      res.json({ message: "O pet foi removido." });
+    } else {
+      res.status(404).json({ message: "O pet não foi encontrado" });
+    }
+  } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Um erro aconteceu." });
   }
