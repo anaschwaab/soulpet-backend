@@ -9,9 +9,10 @@ const router = Router();
 // Definição de rotas
 router.get("/clientes", async (req, res) => {
   // SELECT * FROM clientes;
-  const listaClientes = await Cliente.findAll();
+  const listaClientes = await Cliente.findAll({ include: [Endereco] });
   res.json(listaClientes);
 });
+
 
 // /clientes/1, 2
 router.get("/clientes/:id", async (req, res) => {
